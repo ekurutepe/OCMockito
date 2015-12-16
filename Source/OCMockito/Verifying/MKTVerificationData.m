@@ -4,32 +4,32 @@
 #import "MKTVerificationData.h"
 
 #import "MKTInvocationContainer.h"
-#import "MKTInvocationMatcher.h"
+
+
+@interface MKTVerificationData ()
+@property (nonatomic, strong, readonly) MKTInvocationContainer *invocationContainer;
+@end
 
 
 @implementation MKTVerificationData
 
-- (instancetype)initWithInvocationContainer:(MKTInvocationContainer *)invocations
+@dynamic invocations;
+
+- (instancetype)initWithInvocationContainer:(MKTInvocationContainer *)invocationContainer
                           invocationMatcher:(MKTInvocationMatcher *)wanted;
 {
     self = [super init];
     if (self)
     {
-        _invocations = invocations;
+        _invocationContainer = invocationContainer;
         _wanted = wanted;
     }
     return self;
 }
 
-- (NSUInteger)numberOfMatchingInvocations
+- (NSArray *)invocations
 {
-    NSUInteger count = 0;
-    for (NSInvocation *invocation in self.invocations.registeredInvocations)
-    {
-        if ([self.wanted matches:invocation])
-            ++count;
-    }
-    return count;
+    return self.invocationContainer.registeredInvocations;
 }
 
 @end

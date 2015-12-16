@@ -5,9 +5,11 @@
 
 #import "MKTStubbedInvocationMatcher.h"
 #import "NSInvocation+OCMockito.h"
+#import "MKTInvocation.h"
 
 
 @interface MKTInvocationContainer ()
+@property (nonatomic, strong, readonly) NSMutableArray *mutableRegisteredInvocations;
 @property (nonatomic, strong) MKTStubbedInvocationMatcher *invocationForStubbing;
 @property (nonatomic, strong, readonly) NSMutableArray *stubbed;
 @end
@@ -20,17 +22,22 @@
     self = [super init];
     if (self)
     {
-        _registeredInvocations = [[NSMutableArray alloc] init];
+        _mutableRegisteredInvocations = [[NSMutableArray alloc] init];
         _stubbed = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
+- (NSArray *)registeredInvocations
+{
+    return self.mutableRegisteredInvocations;
+}
 
 - (void)setInvocationForPotentialStubbing:(NSInvocation *)invocation
 {
     [invocation mkt_retainArgumentsWithWeakTarget];
-    [_registeredInvocations addObject:invocation];
+    MKTInvocation *wrappedInvocation = [[MKTInvocation alloc] initWithInvocation:invocation];
+    [self.mutableRegisteredInvocations addObject:wrappedInvocation];
 
     MKTStubbedInvocationMatcher *s = [[MKTStubbedInvocationMatcher alloc] init];
     [s setExpectedInvocation:invocation];
@@ -44,7 +51,7 @@
 
 - (void)addAnswer:(id <MKTAnswer>)answer
 {
-    [_registeredInvocations removeLastObject];
+    [self.mutableRegisteredInvocations removeLastObject];
 
     [self.invocationForStubbing addAnswer:answer];
     [self.stubbed insertObject:self.invocationForStubbing atIndex:0];

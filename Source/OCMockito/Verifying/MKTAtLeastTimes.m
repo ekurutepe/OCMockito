@@ -4,6 +4,7 @@
 
 #import "MKTAtLeastTimes.h"
 
+#import "MKTAtLeastNumberOfInvocationsChecker.h"
 #import "MKTVerificationData.h"
 
 
@@ -26,17 +27,12 @@
 
 - (void)verifyData:(MKTVerificationData *)data testLocation:(MKTTestLocation)testLocation
 {
-    if (self.wantedCount == 0)
-        return;     // this always succeeds
-
-    NSUInteger matchingCount = [data numberOfMatchingInvocations];
-    if (matchingCount < self.wantedCount)
-    {
-        NSString *plural = (self.wantedCount == 1) ? @"" : @"s";
-        NSString *description = [NSString stringWithFormat:@"Expected %u matching invocation%@, but received %u",
-                                                           (unsigned)self.wantedCount, plural, (unsigned)matchingCount];
-        MKTFailTestLocation(testLocation, description);
-    }
+    MKTAtLeastNumberOfInvocationsChecker *checker = [[MKTAtLeastNumberOfInvocationsChecker alloc] init];
+    NSString *failureDescription = [checker checkInvocations:data.invocations
+                                                      wanted:data.wanted
+                                                 wantedCount:self.wantedCount];
+    if (failureDescription)
+        MKTFailTestLocation(testLocation, failureDescription);
 }
 
 @end

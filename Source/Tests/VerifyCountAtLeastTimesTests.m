@@ -31,13 +31,6 @@
         [mockArray removeAllObjects];
 }
 
-- (void)testAtLeastZero_WithNoInvocations_ShouldPass
-{
-    [self callRemoveAllObjectsTimes:0];
-
-    [verifyCountWithMockTestCase(mockArray, atLeast(0), mockTestCase) removeAllObjects];
-}
-
 - (void)testAtLeast_WithTooFewInvocations_ShouldFail
 {
     [self callRemoveAllObjectsTimes:1];
@@ -82,6 +75,16 @@
     [self callRemoveAllObjectsTimes:2];
 
     [verifyCount(mockArray, atLeastOnce()) removeAllObjects];
+}
+
+- (void)testAtLastTwoFailure_ShouldStateExpectedNumberOfInvocations
+{
+    [self callRemoveAllObjectsTimes:1];
+
+    [verifyCountWithMockTestCase(mockArray, atLeast(2), mockTestCase) removeAllObjects];
+
+    assertThat(mockTestCase.failureDescription,
+            startsWith(@"Wanted at least 2 times but was called 1 time."));
 }
 
 @end

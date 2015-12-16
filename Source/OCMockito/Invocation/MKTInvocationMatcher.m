@@ -24,7 +24,15 @@
 @end
 
 
+@interface MKTInvocationMatcher ()
+@property (nonatomic, strong, readwrite) NSInvocation *expected;
+@property (nonatomic, assign, readwrite) NSUInteger numberOfArguments;
+@property (nonatomic, strong, readonly) NSMutableArray *argumentMatchers;
+@end
+
 @implementation MKTInvocationMatcher
+
+@dynamic matchers;
 
 - (instancetype)init
 {
@@ -34,9 +42,14 @@
     return self;
 }
 
+- (NSArray *)matchers
+{
+    return self.argumentMatchers;
+}
+
 - (void)setMatcher:(id <HCMatcher>)matcher atIndex:(NSUInteger)index
 {
-    if (index < [self.argumentMatchers count])
+    if (index < self.argumentMatchers.count)
         self.argumentMatchers[index] = matcher;
     else
     {
@@ -45,14 +58,9 @@
     }
 }
 
-- (NSUInteger)argumentMatchersCount
-{
-    return [self.argumentMatchers count];
-}
-
 - (void)trueUpArgumentMatchersToCount:(NSUInteger)desiredCount
 {
-    NSUInteger count = [self.argumentMatchers count];
+    NSUInteger count = self.argumentMatchers.count;
     while (count < desiredCount)
     {
         [self.argumentMatchers addObject:[self placeholderForUnspecifiedMatcher]];
@@ -94,7 +102,7 @@
 
 - (BOOL)matches:(NSInvocation *)actual
 {
-    if ([self.expected selector] != [actual selector])
+    if (self.expected.selector != actual.selector)
         return NO;
 
     NSArray *actualArgs = [actual mkt_arguments];
@@ -111,6 +119,18 @@
     if (arg == [NSNull null])
         arg = nil;
     return ![matcher matches:arg];
+}
+
+- (NSUInteger)mismatchedArgument:(NSInvocation *)actual
+{
+    NSArray *actualArgs = [actual mkt_arguments];
+    NSUInteger index;
+    for (index = 0; index < self.numberOfArguments; ++index)
+    {
+        if ([self argument:actualArgs[index] doesNotMatch:self.argumentMatchers[index]])
+            break;
+    }
+    return index;
 }
 
 @end
