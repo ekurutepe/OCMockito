@@ -31,13 +31,6 @@
         [mockArray removeAllObjects];
 }
 
-- (void)testAtMostZero_WithNoInvocations_ShouldPass
-{
-    [self callRemoveAllObjectsTimes:0];
-
-    [verifyCountWithMockTestCase(mockArray, atMost(0), mockTestCase) removeAllObjects];
-}
-
 - (void)testAtMost_WithTooManyInvocations_ShouldFail
 {
     [self callRemoveAllObjectsTimes:3];
@@ -59,6 +52,16 @@
     [self callRemoveAllObjectsTimes:2];
     
     [verifyCount(mockArray, atMost(3)) removeAllObjects];
+}
+
+- (void)testAtMostOneFailure_ShouldStateExpectedNumberOfInvocations
+{
+    [self callRemoveAllObjectsTimes:3];
+
+    [verifyCountWithMockTestCase(mockArray, atMost(1), mockTestCase) removeAllObjects];
+
+    assertThat(mockTestCase.failureDescription,
+            startsWith(@"Wanted at most 1 time but was called 3 times."));
 }
 
 @end
