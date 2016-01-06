@@ -5,6 +5,11 @@
 
 #import "MKTOngoingStubbing.h"
 #import "NSInvocation+OCMockito.h"
+#import "MKTBaseMockObject.h"
+#import "MKTObjectAndProtocolMock.h"
+#import "MKTObjectMock.h"
+#import "MKTProtocolMock.h"
+#import "MKTClassObjectMock.h"
 
 @protocol MKTVerificationMode;
 
